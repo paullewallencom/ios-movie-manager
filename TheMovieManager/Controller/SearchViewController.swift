@@ -16,6 +16,8 @@ class SearchViewController: UIViewController {
     
     var selectedIndex = 0
     
+    var currentSearchTask: URLSessionDataTask?
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             let detailVC = segue.destination as! MovieDetailViewController
@@ -28,7 +30,13 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UISearchBarDelegate {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
+        currentSearchTask?.cancel()
+        currentSearchTask = TMDBClient.search(query: searchText) { movies, error in
+            self.movies = movies
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        }
     }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
